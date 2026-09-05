@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarifario SLI IMP - [Nombre del Cliente] - [Fecha]</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #800080;
+            --primary-dark: #5c005c;
+            --primary-light: #f4e8f4;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #e0e0e0;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--bg); color: var(--text); padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tabs-container {
+            display: flex;
+            background: #e9ecef;
+            border-bottom: 2px solid var(--primary);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            background: #e9ecef;
+            color: #555;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
+        .card { background: var(--card-bg); border-radius: 8px; padding: 20px; border: 1px solid var(--border); }
+        .card-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid var(--primary-light); padding-bottom: 6px; }
+        .card-title { font-size: 14px; font-weight: bold; color: var(--primary); margin: 0; }
+        
+        .client-input-container { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .client-input-container label { font-weight: bold; font-size: 13px; color: var(--primary-dark); }
+        .client-input-container input, .client-input-container select { padding: 6px 10px; font-size: 13px; border: 1px solid var(--border); border-radius: 4px; }
+
+        .btn-select-all {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            border: 1px solid var(--primary);
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-select-all:hover { background-color: var(--primary); color: white; }
+
+        .btn-add-item {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-add-item:hover { background-color: var(--primary-dark); }
+
+        .btn-delete-row {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .btn-delete-row:hover { background-color: #bd2130; }
+
+        .navieras-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+            margin-bottom: 15px;
+            background: #fafafa;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+        }
+        .naviera-item { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
+
+        .table-costos-fijos { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 15px; }
+        .table-costos-fijos th, .table-costos-fijos td { padding: 6px 4px; text-align: center; border: 1px solid var(--border); }
+        .table-costos-fijos th { background-color: var(--primary); color: white; font-size: 11px; }
+        .table-costos-fijos th.sub-header { background-color: var(--primary-dark); }
+        .table-costos-fijos input[type="number"] { width: 70px; padding: 3px; font-size: 11px; text-align: right; border: 1px solid var(--border); border-radius: 3px; }
+        .table-costos-fijos input[type="text"] { padding: 3px 6px; font-size: 11px; border: 1px solid var(--border); border-radius: 3px; width: 100%; }
+        .table-costos-fijos select { padding: 4px; font-size: 11px; border: 1px solid var(--border); border-radius: 3px; max-width: 280px; }
+        .table-costos-fijos .row-label { text-align: left; font-weight: 600; padding-left: 8px; }
+        .cell-group { display: inline-flex; align-items: center; gap: 4px; }
+
+        .fargoline-box {
+            background: #fcf6fc;
+            border: 1.5px dashed var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .fargoline-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .fargoline-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 10px;
+        }
+        .fargoline-item {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 8px 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 11px;
+        }
+        .fargoline-item label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+        }
+        .fargoline-item input[type="number"] {
+            width: 65px;
+            padding: 3px;
+            font-size: 11px;
+            text-align: right;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        .aduana-config-box {
+            background: var(--primary-light);
+            border: 1px solid var(--primary);
+            padding: 10px 12px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .aduana-inputs-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .modalidad-container {
+            background: #fafafa;
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        #exportArea { background: #ffffff; padding: 25px; border-radius: 8px; border: 1px solid var(--border); }
+        .export-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        .export-logo { height: 50px; width: auto; object-fit: contain; }
+        .export-title-container { text-align: right; }
+
+        .meta-info-export { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 10px; font-weight: 600; color: var(--primary-dark); }
+
+        .table-tarifario { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; text-align: center; }
+        .table-tarifario th { background-color: var(--primary); color: white; padding: 8px 5px; font-size: 11px; text-transform: uppercase; border: 1px solid var(--primary-dark); }
+        .table-tarifario td { padding: 7px 5px; border: 1px solid var(--border); }
+        .table-tarifario tbody tr:nth-child(even) { background-color: var(--primary-light); }
+        .monto-celda { font-weight: bold; color: var(--primary); }
+
+        .glosa-box {
+            margin-top: 20px;
+            padding: 12px 15px;
+            background: #faf5fa;
+            border: 1.5px solid var(--primary);
+            border-radius: 6px;
+            font-size: 11px;
+            color: #333;
+            line-height: 1.4;
+        }
+        .glosa-title { font-weight: bold; color: var(--primary); text-align: center; margin-bottom: 6px; font-size: 12px; text-transform: uppercase; }
+
+        .btn-export-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn-export {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            flex: 1;
+        }
+        .btn-export:hover { background-color: var(--primary-dark); }
+        .btn-whatsapp {
+            background-color: #25d366;
+            color: white;
+        }
+        .btn-whatsapp:hover { background-color: #1ebe5d; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h2>TOLEPU PERÚ - TARIFARIO INTEGRAL CALLAO</h2>
+            <span style="font-size: 12px;">Servicio Integral Importación / Exportación</span>
+        </div>
+        <div>www.tolepuperu.com.pe</div>
+    </header>
+
+    <div class="tabs-container">
+        <button class="tab-btn active" onclick="cambiarModo('IMP')">IMPORTACIÓN MARÍTIMA</button>
+        <button class="tab-btn" onclick="cambiarModo('EXP')">EXPORTACIÓN MARÍTIMA</button>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <div class="client-input-container">
+                <label for="inputCliente">Nombre del Cliente:</label>
+                <input type="text" id="inputCliente" placeholder="Ingrese el nombre del cliente o empresa..." oninput="actualizarCliente()" style="flex: 1;">
+            </div>
+
+            <div class="card-header-actions">
+                <span class="card-title">1. Selección de Líneas Navieras</span>
+                <button type="button" class="btn-select-all" onclick="toggleTodasNavieras()">Seleccionar / Deseleccionar Todas</button>
+            </div>
+            <div class="navieras-grid" id="navierasContainer">
+                <!-- Dinámico -->
+            </div>
+
+            <!-- MODO IMPORTACIÓN -->
+            <div id="modoIMP" class="tab-content active">
+                <div class="card-header-actions">
+                    <span class="card-title">2. MATRIZ DE COSTOS FIJOS BASE IMPORTACIÓN (NETOS)</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn-add-item" onclick="agregarItemCustom('IMP')">+ Agregar Ítem</button>
+                        <button type="button" class="btn-select-all" onclick="toggleTodosCostosBase('IMP')">Seleccionar Todos</button>
+                    </div>
+                </div>
+
+                <div class="modalidad-container">
+                    <label for="selectModalidad">MODALIDAD DE DEPÓSITO / PUERTO:</label>
+                    <select id="selectModalidad" onchange="cambiarModalidad()">
+                        <option value="fargoline">1. Depósito Temporal (Fargoline c/ Monitoreo)</option>
+                        <option value="sada">2. SADA Descarga Directa (Puerto Directo)</option>
+                        <option value="puerto">3. Costos de Puerto - Depósito Temporal (APM / DPW)</option>
+                    </select>
+                </div>
+
+                <div class="aduana-config-box">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span>AGENCIA DE ADUANA:</span>
+                        <select id="selModoAduanaImp" onchange="cambiarModoAduanaImp()">
+                            <option value="MINIMA">Comisión Mínima Fija ($120.00)</option>
+                            <option value="PORCENTAJE">Porcentaje sobre CIF (Mínimo $120.00)</option>
+                        </select>
+                    </div>
+
+                    <div id="boxCamposCIF" class="aduana-inputs-grid" style="display: none;">
+                        <div>
+                            <label for="inputFOB">Valor FOB ($):</label>
+                            <input type="number" id="inputFOB" value="20000" style="width: 80px; padding: 3px;" oninput="recalcularAduanaImp()">
+                        </div>
+                        <div>
+                            <label for="inputFleteCIF">Flete ($):</label>
+                            <input type="number" id="inputFleteCIF" value="2000" style="width: 70px; padding: 3px;" oninput="recalcularAduanaImp()">
+                        </div>
+                        <div>
+                            <label for="inputSeguro">Seguro ($):</label>
+                            <input type="number" id="inputSeguro" value="150" style="width: 70px; padding: 3px;" oninput="recalcularAduanaImp()">
+                        </div>
+                        <div>
+                            <label for="inputPorcentajeCIF">% Aduana:</label>
+                            <input type="number" id="inputPorcentajeCIF" value="0.45" step="0.05" style="width: 60px; padding: 3px;" oninput="recalcularAduanaImp()">
+                        </div>
+                        <div style="font-weight: bold; color: var(--primary-dark);">
+                            Valor CIF Calculado: $<span id="lblCalculoCIF">22150.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table-costos-fijos">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">COSTOS FIJOS BASE IMP</th>
+                            <th colspan="2">APM</th>
+                            <th colspan="2">DPW</th>
+                        </tr>
+                        <tr>
+                            <th class="sub-header">20'</th>
+                            <th class="sub-header">40'</th>
+                            <th class="sub-header">20'</th>
+                            <th class="sub-header">40'</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaCostosImpBody">
+                        <tr>
+                            <td class="row-label"><label><input type="checkbox" class="chk-row-master-imp" checked onchange="toggleFilaCosto('IMP', this, 'row-profit-imp')"> Profit Tolepu</label></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-profit-imp" data-col="apm_20" checked onchange="sincronizarFila('row-profit-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_p_apm_20" value="180" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-profit-imp" data-col="apm_40" checked onchange="sincronizarFila('row-profit-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_p_apm_40" value="180" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-profit-imp" data-col="dpw_20" checked onchange="sincronizarFila('row-profit-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_p_dpw_20" value="180" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-profit-imp" data-col="dpw_40" checked onchange="sincronizarFila('row-profit-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_p_dpw_40" value="180" oninput="calcularTotales()"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="row-label"><label><input type="checkbox" class="chk-row-master-imp" checked onchange="toggleFilaCosto('IMP', this, 'row-deposito-imp')"> Depósito / Servicio Almacén / Puerto</label></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-deposito-imp" data-col="apm_20" data-glosa="Depósito/Puerto" checked onchange="sincronizarFila('row-deposito-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_s_apm_20" value="350" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-deposito-imp" data-col="apm_40" data-glosa="Depósito/Puerto" checked onchange="sincronizarFila('row-deposito-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_s_apm_40" value="520" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-deposito-imp" data-col="dpw_20" data-glosa="Depósito/Puerto" checked onchange="sincronizarFila('row-deposito-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_s_dpw_20" value="340" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-deposito-imp" data-col="dpw_40" data-glosa="Depósito/Puerto" checked onchange="sincronizarFila('row-deposito-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_s_dpw_40" value="490" oninput="calcularTotales()"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">
+                                <label><input type="checkbox" class="chk-row-master-imp" checked onchange="toggleFilaCosto('IMP', this, 'row-transporte-imp')"> Transporte Local (Tarifa Única Uniformizada)</label><br>
+                                <select id="selTransporteImp" onchange="cambiarTransporteImp()">
+                                    <option value="CALLAO">Callao ($380)</option>
+                                    <option value="VENTANILLA">Ventanilla ($380)</option>
+                                    <option value="BELLAVISTA">Bellavista ($380)</option>
+                                    <option value="CARMEN_DE_LA_LEGUA">Carmen de La Legua ($380)</option>
+                                    <option value="LA_PERLA">La Perla ($380)</option>
+                                    <option value="LIMA_CENTRO">Lima Cercado ($420)</option>
+                                    <option value="ATE">Ate Vitarte ($420)</option>
+                                    <option value="SAN_LUIS">San Luis ($420)</option>
+                                    <option value="SAN_TA_ANITA">Santa Anita ($420)</option>
+                                    <option value="LA_VICTORIA">La Victoria ($420)</option>
+                                    <option value="BREÑA">Breña ($420)</option>
+                                    <option value="RÍMAC">Rímac ($420)</option>
+                                    <option value="SAN_MARTIN_DE_PORRES">San Martín de Porres ($420)</option>
+                                    <option value="LOS_OLIVOS">Los Olivos ($420)</option>
+                                    <option value="INDEPENDENCIA">Independencia ($420)</option>
+                                    <option value="COMAS">Comas ($420)</option>
+                                    <option value="SAN_MIGUEL">San Miguel ($420)</option>
+                                    <option value="PUEBLO_LIBRE">Pueblo Libre ($420)</option>
+                                    <option value="JESUS_MARIA">Jesús María ($420)</option>
+                                    <option value="LINCE">Lince ($420)</option>
+                                    <option value="MAGDALENA">Magdalena del Mar ($420)</option>
+                                    <option value="MIRAFLORES">Miraflores ($420)</option>
+                                    <option value="SAN_ISIDRO">San Isidro ($420)</option>
+                                    <option value="SAN_BORJA">San Borja ($420)</option>
+                                    <option value="SURCO">Santiago de Surco ($420)</option>
+                                    <option value="SURQUILLO">Surquillo ($420)</option>
+                                    <option value="BARRANCO">Barranco ($420)</option>
+                                    <option value="CHORRILLOS">Chorrillos ($420)</option>
+                                    <option value="SAN_JUAN_DE_LURIGANCHO">San Juan de Lurigancho ($420)</option>
+                                    <option value="SAN_JUAN_DE_MIRAFLORES">San Juan de Miraflores ($420)</option>
+                                    <option value="VILLA_MARIA_DEL_TRIUNFO">Villa María del Triunfo ($420)</option>
+                                    <option value="VILLA_EL_SALVADOR">Villa El Salvador ($420)</option>
+                                    <option value="LURIN">Lurín ($500)</option>
+                                    <option value="PACHACAMAC">Pachacámac ($500)</option>
+                                    <option value="PUENTE_PIEDRA">Puente Piedra ($500)</option>
+                                    <option value="CARABAYLLO">Carabayllo ($500)</option>
+                                    <option value="ANCON">Ancón ($500)</option>
+                                    <option value="SANTA_ROSA">Santa Rosa ($500)</option>
+                                    <option value="CHOSICA">Lurigancho - Chosica ($500)</option>
+                                    <option value="CHACLACAYO">Chaclacayo ($500)</option>
+                                    <option value="CIENEGUILLA">Cieneguilla ($500)</option>
+                                    <option value="PUUCUSANA">Pucsana ($500)</option>
+                                    <option value="CHILCA">Chilca ($500)</option>
+                                </select>
+                            </td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-transporte-imp" data-col="apm_20" data-glosa="Transporte Local" checked onchange="sincronizarFila('row-transporte-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_t_apm_20" value="380" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-transporte-imp" data-col="apm_40" data-glosa="Transporte Local" checked onchange="sincronizarFila('row-transporte-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_t_apm_40" value="380" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-transporte-imp" data-col="dpw_20" data-glosa="Transporte Local" checked onchange="sincronizarFila('row-transporte-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_t_dpw_20" value="380" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-transporte-imp" data-col="dpw_40" data-glosa="Transporte Local" checked onchange="sincronizarFila('row-transporte-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_t_dpw_40" value="380" oninput="calcularTotales()"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="row-label"><label><input type="checkbox" class="chk-row-master-imp" checked onchange="toggleFilaCosto('IMP', this, 'row-aduana-imp')"> Agencia de Aduana</label></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-aduana-imp" data-col="apm_20" data-glosa="Agencia de Aduana" checked onchange="sincronizarFila('row-aduana-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_a_apm_20" value="120" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-aduana-imp" data-col="apm_40" data-glosa="Agencia de Aduana" checked onchange="sincronizarFila('row-aduana-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_a_apm_40" value="120" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-aduana-imp" data-col="dpw_20" data-glosa="Agencia de Aduana" checked onchange="sincronizarFila('row-aduana-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_a_dpw_20" value="120" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-aduana-imp" data-col="dpw_40" data-glosa="Agencia de Aduana" checked onchange="sincronizarFila('row-aduana-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_a_dpw_40" value="120" oninput="calcularTotales()"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="row-label"><label><input type="checkbox" class="chk-row-master-imp" checked onchange="toggleFilaCosto('IMP', this, 'row-gastos-imp')"> Gastos Operativos</label></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-gastos-imp" data-col="apm_20" data-glosa="Gastos Operativos" checked onchange="sincronizarFila('row-gastos-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_g_apm_20" value="30" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-gastos-imp" data-col="apm_40" data-glosa="Gastos Operativos" checked onchange="sincronizarFila('row-gastos-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_g_apm_40" value="30" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-gastos-imp" data-col="dpw_20" data-glosa="Gastos Operativos" checked onchange="sincronizarFila('row-gastos-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_g_dpw_20" value="30" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-imp row-gastos-imp" data-col="dpw_40" data-glosa="Gastos Operativos" checked onchange="sincronizarFila('row-gastos-imp', 'IMP'); calcularTotales()"><input type="number" id="imp_g_dpw_40" value="30" oninput="calcularTotales()"></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="fargoline-box">
+                    <div class="fargoline-title">
+                        <span>3. COSTOS ADICIONALES FARGOLINE (IMPORTACIÓN)</span>
+                        <span style="font-size: 10px; font-weight: normal; color: var(--primary);">* Seleccionable y Editable</span>
+                    </div>
+                    <div class="fargoline-grid">
+                        <div class="fargoline-item">
+                            <label><input type="checkbox" class="chk-fargoline-imp" data-glosa="Monitoreo Carga" onchange="calcularTotales()"> Monitoreo Carga</label>
+                            <span>$ <input type="number" value="40" oninput="calcularTotales()"></span>
+                        </div>
+                        <div class="fargoline-item">
+                            <label><input type="checkbox" class="chk-fargoline-imp" data-glosa="Cuadrilla / Estiba" onchange="calcularTotales()"> Cuadrilla / Estiba</label>
+                            <span>$ <input type="number" value="50" oninput="calcularTotales()"></span>
+                        </div>
+                        <div class="fargoline-item">
+                            <label><input type="checkbox" class="chk-fargoline-imp" data-glosa="Uso Montacargas" onchange="calcularTotales()"> Uso Montacargas</label>
+                            <span>$ <input type="number" value="45" oninput="calcularTotales()"></span>
+                        </div>
+                        <div class="fargoline-item">
+                            <label><input type="checkbox" class="chk-fargoline-imp" data-glosa="Movilización Interna" onchange="calcularTotales()"> Movilización Interna</label>
+                            <span>$ <input type="number" value="35" oninput="calcularTotales()"></span>
+                        </div>
+                        <div class="fargoline-item">
+                            <label><input type="checkbox" class="chk-fargoline-imp" data-glosa="Desconsolidado" onchange="calcularTotales()"> Desconsolidado</label>
+                            <span>$ <input type="number" value="60" oninput="calcularTotales()"></span>
+                        </div>
+                        <div class="fargoline-item">
+                            <label><input type="checkbox" class="chk-fargoline-imp" data-glosa="Tracción Vacíos" onchange="calcularTotales()"> Tracción Vacíos</label>
+                            <span>$ <input type="number" value="80" oninput="calcularTotales()"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- MODO EXPORTACIÓN -->
+            <div id="modoEXP" class="tab-content">
+                <div class="card-header-actions">
+                    <span class="card-title">2. MATRIZ DE COSTOS FIJOS BASE EXPORTACIÓN (NETOS)</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn-add-item" onclick="agregarItemCustom('EXP')">+ Agregar Ítem</button>
+                        <button type="button" class="btn-select-all" onclick="toggleTodosCostosBase('EXP')">Seleccionar Todos</button>
+                    </div>
+                </div>
+                <table class="table-costos-fijos">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">COSTOS FIJOS BASE EXP</th>
+                            <th colspan="2">APM</th>
+                            <th colspan="2">DPW</th>
+                        </tr>
+                        <tr>
+                            <th class="sub-header">20'</th>
+                            <th class="sub-header">40'</th>
+                            <th class="sub-header">20'</th>
+                            <th class="sub-header">40'</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaCostosExpBody">
+                        <tr>
+                            <td class="row-label"><label><input type="checkbox" class="chk-row-master-exp" checked onchange="toggleFilaCosto('EXP', this, 'row-profit-exp')"> Profit Tolepu</label></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-profit-exp" data-col="apm_20" checked onchange="sincronizarFila('row-profit-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_p_apm_20" value="180" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-profit-exp" data-col="apm_40" checked onchange="sincronizarFila('row-profit-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_p_apm_40" value="180" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-profit-exp" data-col="dpw_20" checked onchange="sincronizarFila('row-profit-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_p_dpw_20" value="180" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-profit-exp" data-col="dpw_40" checked onchange="sincronizarFila('row-profit-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_p_dpw_40" value="180" oninput="calcularTotales()"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="row-label"><label><input type="checkbox" class="chk-row-master-exp" checked onchange="toggleFilaCosto('EXP', this, 'row-deposito-exp')"> Depósito temporal (Fargoline)</label></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-deposito-exp" data-col="apm_20" data-glosa="Depósito temporal (Fargoline)" checked onchange="sincronizarFila('row-deposito-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_s_apm_20" value="386" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-deposito-exp" data-col="apm_40" data-glosa="Depósito temporal (Fargoline)" checked onchange="sincronizarFila('row-deposito-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_s_apm_40" value="569" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-deposito-exp" data-col="dpw_20" data-glosa="Depósito temporal (Fargoline)" checked onchange="sincronizarFila('row-deposito-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_s_dpw_20" value="363" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-deposito-exp" data-col="dpw_40" data-glosa="Depósito temporal (Fargoline)" checked onchange="sincronizarFila('row-deposito-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_s_dpw_40" value="501.60" oninput="calcularTotales()"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">
+                                <label><input type="checkbox" class="chk-row-master-exp" checked onchange="toggleFilaCosto('EXP', this, 'row-transporte-exp')"> Transporte Local (Tarifa Única Uniformizada)</label><br>
+                                <select id="selTransporteExp" onchange="cambiarTransporteExp()">
+                                    <option value="LOCAL">Ruta Especial Planta / Fargoline ($700)</option>
+                                    <option value="CALLAO">Callao ($380)</option>
+                                    <option value="VENTANILLA">Ventanilla ($380)</option>
+                                    <option value="BELLAVISTA">Bellavista ($380)</option>
+                                    <option value="CARMEN_DE_LA_LEGUA">Carmen de La Legua ($380)</option>
+                                    <option value="LA_PERLA">La Perla ($380)</option>
+                                    <option value="LIMA_CENTRO">Lima Cercado ($420)</option>
+                                    <option value="ATE">Ate Vitarte ($420)</option>
+                                    <option value="SAN_LUIS">San Luis ($420)</option>
+                                    <option value="SAN_TA_ANITA">Santa Anita ($420)</option>
+                                    <option value="LA_VICTORIA">La Victoria ($420)</option>
+                                    <option value="BREÑA">Breña ($420)</option>
+                                    <option value="RÍMAC">Rímac ($420)</option>
+                                    <option value="SAN_MARTIN_DE_PORRES">San Martín de Porres ($420)</option>
+                                    <option value="LOS_OLIVOS">Los Olivos ($420)</option>
+                                    <option value="INDEPENDENCIA">Independencia ($420)</option>
+                                    <option value="COMAS">Comas ($420)</option>
+                                    <option value="SAN_MIGUEL">San Miguel ($420)</option>
+                                    <option value="PUEBLO_LIBRE">Pueblo Libre ($420)</option>
+                                    <option value="JESUS_MARIA">Jesús María ($420)</option>
+                                    <option value="LINCE">Lince ($420)</option>
+                                    <option value="MAGDALENA">Magdalena del Mar ($420)</option>
+                                    <option value="MIRAFLORES">Miraflores ($420)</option>
+                                    <option value="SAN_ISIDRO">San Isidro ($420)</option>
+                                    <option value="SAN_BORJA">San Borja ($420)</option>
+                                    <option value="SURCO">Santiago de Surco ($420)</option>
+                                    <option value="SURQUILLO">Surquillo ($420)</option>
+                                    <option value="BARRANCO">Barranco ($420)</option>
+                                    <option value="CHORRILLOS">Chorrillos ($420)</option>
+                                    <option value="SAN_JUAN_DE_LURIGANCHO">San Juan de Lurigancho ($420)</option>
+                                    <option value="SAN_JUAN_DE_MIRAFLORES">San Juan de Miraflores ($420)</option>
+                                    <option value="VILLA_MARIA_DEL_TRIUNFO">Villa María del Triunfo ($420)</option>
+                                    <option value="VILLA_EL_SALVADOR">Villa El Salvador ($420)</option>
+                                    <option value="LURIN">Lurín ($500)</option>
+                                    <option value="PACHACAMAC">Pachacámac ($500)</option>
+                                    <option value="PUENTE_PIEDRA">Puente Piedra ($500)</option>
+                                    <option value="CARABAYLLO">Carabayllo ($500)</option>
+                                    <option value="ANCON">Ancón ($500)</option>
+                                    <option value="SANTA_ROSA">Santa Rosa ($500)</option>
+                                    <option value="CHOSICA">Lurigancho - Chosica ($500)</option>
+                                    <option value="CHACLACAYO">Chaclacayo ($500)</option>
+                                    <option value="CIENEGUILLA">Cieneguilla ($500)</option>
+                                    <option value="PUUCUSANA">Pucsana ($500)</option>
+                                    <option value="CHILCA">Chilca ($500)</option>
+                                </select>
+                            </td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-transporte-exp" data-col="apm_20" data-glosa="Transporte" checked onchange="sincronizarFila('row-transporte-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_t_apm_20" value="700" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-transporte-exp" data-col="apm_40" data-glosa="Transporte" checked onchange="sincronizarFila('row-transporte-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_t_apm_40" value="700" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-transporte-exp" data-col="dpw_20" data-glosa="Transporte" checked onchange="sincronizarFila('row-transporte-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_t_dpw_20" value="700" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-transporte-exp" data-col="dpw_40" data-glosa="Transporte" checked onchange="sincronizarFila('row-transporte-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_t_dpw_40" value="700" oninput="calcularTotales()"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="row-label"><label><input type="checkbox" class="chk-row-master-exp" checked onchange="toggleFilaCosto('EXP', this, 'row-aduana-exp')"> Agencia de Aduana</label></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-aduana-exp" data-col="apm_20" data-glosa="Agencia de Aduana" checked onchange="sincronizarFila('row-aduana-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_a_apm_20" value="120" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-aduana-exp" data-col="apm_40" data-glosa="Agencia de Aduana" checked onchange="sincronizarFila('row-aduana-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_a_apm_40" value="120" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-aduana-exp" data-col="dpw_20" data-glosa="Agencia de Aduana" checked onchange="sincronizarFila('row-aduana-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_a_dpw_20" value="120" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-aduana-exp" data-col="dpw_40" data-glosa="Agencia de Aduana" checked onchange="sincronizarFila('row-aduana-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_a_dpw_40" value="120" oninput="calcularTotales()"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="row-label"><label><input type="checkbox" class="chk-row-master-exp" checked onchange="toggleFilaCosto('EXP', this, 'row-gastos-exp')"> Gastos Operativos</label></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-gastos-exp" data-col="apm_20" data-glosa="Gastos Operativos" checked onchange="sincronizarFila('row-gastos-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_g_apm_20" value="30" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-gastos-exp" data-col="apm_40" data-glosa="Gastos Operativos" checked onchange="sincronizarFila('row-gastos-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_g_apm_40" value="30" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-gastos-exp" data-col="dpw_20" data-glosa="Gastos Operativos" checked onchange="sincronizarFila('row-gastos-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_g_dpw_20" value="30" oninput="calcularTotales()"></div></td>
+                            <td><div class="cell-group"><input type="checkbox" class="chk-costo-exp row-gastos-exp" data-col="dpw_40" data-glosa="Gastos Operativos" checked onchange="sincronizarFila('row-gastos-exp', 'EXP'); calcularTotales()"><input type="number" id="exp_g_dpw_40" value="30" oninput="calcularTotales()"></div></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="fargoline-box">
+                    <div class="fargoline-title">
+                        <span>3. COSTOS ADICIONALES FARGOLINE (EXPORTACIÓN)</span>
+                        <span style="font-size: 10px; font-weight: normal; color: var(--primary);">* Seleccionable y Editable</span>
+                    </div>
+                    <div class="fargoline-grid">
+                        <div class="fargoline-item">
+                            <label><input type="checkbox" class="chk-fargoline-exp" data-glosa="Llenado / Consolidado" onchange="calcularTotales()"> Llenado / Consolidado</label>
+                            <span>$ <input type="number" value="90" oninput="calcularTotales()"></span>
+                        </div>
+                        <div class="fargoline-item">
+                            <label><input type="checkbox" class="chk-fargoline-exp" data-glosa="Tracción Vacíos" onchange="calcularTotales()"> Tracción Vacíos</label>
+                            <span>$ <input type="number" value="80" oninput="calcularTotales()"></span>
+                        </div>
+                        <div class="fargoline-item">
+                            <label><input type="checkbox" class="chk-fargoline-exp" data-glosa="Cuadrilla Export" onchange="calcularTotales()"> Cuadrilla Export</label>
+                            <span>$ <input type="number" value="50" oninput="calcularTotales()"></span>
+                        </div>
+                        <div class="fargoline-item">
+                            <label><input type="checkbox" class="chk-fargoline-exp" data-glosa="Uso Montacargas" onchange="calcularTotales()"> Uso Montacargas</label>
+                            <span>$ <input type="number" value="45" oninput="calcularTotales()"></span>
+                        </div>
+                        <div class="fargoline-item">
+                            <label><input type="checkbox" class="chk-fargoline-exp" data-glosa="Movilización Interna" onchange="calcularTotales()"> Movilización Interna</label>
+                            <span>$ <input type="number" value="35" oninput="calcularTotales()"></span>
+                        </div>
+                        <div class="fargoline-item">
+                            <label><input type="checkbox" class="chk-fargoline-exp" data-glosa="Monitoreo Carga" onchange="calcularTotales()"> Monitoreo Carga</label>
+                            <span>$ <input type="number" value="40" oninput="calcularTotales()"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="exportArea">
+            <div class="export-header">
+                <img id="logoImg" class="export-logo" src="https://i.postimg.cc/NyNZyhXm/logo.jpg" crossorigin="anonymous" alt="Tolepu Perú Logo">
+                <div class="export-title-container">
+                    <h3 id="exportTitulo" style="color: var(--primary); margin: 0;">TOLEPU PERÚ - TARIFARIO DE IMPORTACIÓN CALLAO</h3>
+                    <p style="font-size: 11px; color: #666; margin: 2px 0 0 0;">Servicio Integral Callao | www.tolepuperu.com.pe</p>
+                </div>
+            </div>
+
+            <div class="meta-info-export">
+                <div>CLIENTE: <span id="displayCliente" style="color: var(--text);">GENERAL</span></div>
+                <div>FECHA DE EMISIÓN: <span id="displayFecha" style="color: var(--text);">--/--/----</span></div>
+            </div>
+
+            <table class="table-tarifario">
+                <thead>
+                    <tr>
+                        <th>Línea Naviera</th>
+                        <th>APM 20'</th>
+                        <th>APM 40'</th>
+                        <th>DPW 20'</th>
+                        <th>DPW 40'</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyTarifario">
+                </tbody>
+            </table>
+
+            <div class="glosa-box">
+                <div class="glosa-title">GLOSA Y CONDICIONES DEL SERVICIO</div>
+                <strong>• TODOS LOS PRECIOS DE ESTE TARIFARIO NO INCLUYEN IGV.</strong><br>
+                • <span id="glosaDinamica">--</span><br>
+                • Tarifa válida para operaciones sujetas a condiciones estándar en Canal Verde.
+            </div>
+        </div>
+
+        <div class="btn-export-container">
+            <button class="btn-export" onclick="exportarImagen()">Descargar Tarifario Neto (PNG)</button>
+            <button class="btn-export btn-whatsapp" onclick="enviarWhatsAppConImagen()">Enviar por WhatsApp (Con Imagen)</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let modoActual = 'IMP';
+let contadorCustomImp = 0;
+let contadorCustomExp = 0;
+
+const zonasCallao = ["CALLAO", "VENTANILLA", "BELLAVISTA", "CARMEN_DE_LA_LEGUA", "LA_PERLA"];
+const zonasLima = [
+    "LIMA_CENTRO", "ATE", "SAN_LUIS", "SAN_TA_ANITA", "LA_VICTORIA", "BREÑA", "RÍMAC", 
+    "SAN_MARTIN_DE_PORRES", "LOS_OLIVOS", "INDEPENDENCIA", "COMAS", "SAN_MIGUEL", 
+    "PUEBLO_LIBRE", "JESUS_MARIA", "LINCE", "MAGDALENA", "MIRAFLORES", "SAN_ISIDRO", 
+    "SAN_BORJA", "SURCO", "SURQUILLO", "BARRANCO", "CHORRILLOS", "SAN_JUAN_DE_LURIGANCHO", 
+    "SAN_JUAN_DE_MIRAFLORES", "VILLA_MARIA_DEL_TRIUNFO", "VILLA_EL_SALVADOR"
+];
+const zonasPeriferica = [
+    "LURIN", "PACHACAMAC", "PUENTE_PIEDRA", "CARABAYLLO", "ANCON", "SANTA_ROSA", 
+    "CHOSICA", "CHACLACAYO", "CIENEGUILLA", "PUUCUSANA", "CHILCA"
+];
+
+const navierasImportacion = {
+    "CMA CGM": { vb: 322.14, gate_20: 253.70, gate_40: 253.70 },
+    "COSCO / OOCL": { vb: 236.00, gate_20: 233.05, gate_40: 233.05 },
+    "EVERGREEN": { vb: 348.10, gate_20: 209.45, gate_40: 209.45 },
+    "HAPAG LLOYD": { vb: 348.10, gate_20: 265.50, gate_40: 265.50 },
+    "HYUNDAI": { vb: 357.54, gate_20: 227.74, gate_40: 227.74 },
+    "MAERSK": { vb: 338.66, gate_20: 279.66, gate_40: 279.66 },
+    "MSC": { vb: 414.18, gate_20: 253.70, gate_40: 253.70 },
+    "ONE": { vb: 394.12, gate_20: 247.80, gate_40: 247.80 },
+    "PIL": { vb: 331.58, gate_20: 256.06, gate_40: 256.06 },
+    "SEABOARD": { vb: 338.66, gate_20: 217.12, gate_40: 217.12 },
+    "WAN HAI": { vb: 363.44, gate_20: 210.04, gate_40: 210.04 },
+    "YANG MING": { vb: 420.08, gate_20: 252.52, gate_40: 252.52 },
+    "ZIM": { vb: 448.40, gate_20: 247.80, gate_40: 247.80 }
+};
+
+const navierasExportacion = {
+    "CMA CGM": { vb: 219.35, gate_20: 150.00, gate_40: 150.00 },
+    "HAPAG LLOYD": { vb: 252.00, gate_20: 165.00, gate_40: 165.00 },
+    "ONE": { vb: 309.00, gate_20: 142.00, gate_40: 142.00 },
+    "MAERSK / SEALAND": { vb: 175.00, gate_20: 179.00, gate_40: 179.00 },
+    "MSC": { vb: 490.00, gate_20: 152.00, gate_40: 152.00 },
+    "KING OCEAN": { vb: 316.67, gate_20: 115.00, gate_40: 115.00 },
+    "YANG MING": { vb: 320.00, gate_20: 135.00, gate_40: 135.00 },
+    "SEABOARD": { vb: 286.98, gate_20: 140.00, gate_40: 140.00 },
+    "PIL": { vb: 321.00, gate_20: 162.00, gate_40: 162.00 },
+    "EVERGREEN": { vb: 225.00, gate_20: 129.50, gate_40: 129.50 },
+    "WAN HAI": { vb: 228.62, gate_20: 135.00, gate_40: 135.00 },
+    "HYUNDAI": { vb: 260.09, gate_20: 175.00, gate_40: 175.00 },
+    "COSCO": { vb: 100.00, gate_20: 125.50, gate_40: 125.50 },
+    "OOCL": { vb: 100.00, gate_20: 125.50, gate_40: 125.50 },
+    "ZIM": { vb: 320.00, gate_20: 160.00, gate_40: 160.00 }
+};
+
+function agregarItemCustom(modo) {
+    const tbodyId = modo === 'IMP' ? 'tablaCostosImpBody' : 'tablaCostosExpBody';
+    const tbody = document.getElementById(tbodyId);
+    const claseChkCosto = modo === 'IMP' ? 'chk-costo-imp' : 'chk-costo-exp';
+    const claseChkMaster = modo === 'IMP' ? 'chk-row-master-imp' : 'chk-row-master-exp';
+    const prefijo = modo === 'IMP' ? 'imp_custom_' : 'exp_custom_';
+    
+    const contador = modo === 'IMP' ? (++contadorCustomImp) : (++contadorCustomExp);
+    const rowClass = `row-custom-${modo.toLowerCase()}-${contador}`;
+    const rowIdName = `custom_name_${modo.toLowerCase()}_${contador}`;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td class="row-label">
+            <div style="display: flex; align-items: center; gap: 4px;">
+                <input type="checkbox" class="${claseChkMaster}" checked onchange="toggleFilaCosto('${modo}', this, '${rowClass}')">
+                <input type="text" id="${rowIdName}" value="Nuevo Ítem ${contador}" placeholder="Nombre del ítem..." oninput="calcularTotales()" style="flex: 1;">
+                <button type="button" class="btn-delete-row" onclick="this.closest('tr').remove(); calcularTotales();" title="Eliminar ítem">X</button>
+            </div>
+        </td>
+        <td><div class="cell-group"><input type="checkbox" class="${claseChkCosto} ${rowClass}" data-col="apm_20" data-glosa-custom="${rowIdName}" checked onchange="sincronizarFila('${rowClass}', '${modo}'); calcularTotales()"><input type="number" value="0" oninput="calcularTotales()"></div></td>
+        <td><div class="cell-group"><input type="checkbox" class="${claseChkCosto} ${rowClass}" data-col="apm_40" data-glosa-custom="${rowIdName}" checked onchange="sincronizarFila('${rowClass}', '${modo}'); calcularTotales()"><input type="number" value="0" oninput="calcularTotales()"></div></td>
+        <td><div class="cell-group"><input type="checkbox" class="${claseChkCosto} ${rowClass}" data-col="dpw_20" data-glosa-custom="${rowIdName}" checked onchange="sincronizarFila('${rowClass}', '${modo}'); calcularTotales()"><input type="number" value="0" oninput="calcularTotales()"></div></td>
+        <td><div class="cell-group"><input type="checkbox" class="${claseChkCosto} ${rowClass}" data-col="dpw_40" data-glosa-custom="${rowIdName}" checked onchange="sincronizarFila('${rowClass}', '${modo}'); calcularTotales()"><input type="number" value="0" oninput="calcularTotales()"></div></td>
+    `;
+    tbody.appendChild(tr);
+    calcularTotales();
+}
+
+function cambiarModalidad() {
+    const val = document.getElementById('selectModalidad').value;
+    if (val === 'fargoline') {
+        document.getElementById('imp_s_apm_20').value = 350;
+        document.getElementById('imp_s_apm_40').value = 520;
+        document.getElementById('imp_s_dpw_20').value = 340;
+        document.getElementById('imp_s_dpw_40').value = 490;
+    } else if (val === 'sada') {
+        document.getElementById('imp_s_apm_20').value = 280;
+        document.getElementById('imp_s_apm_40').value = 410;
+        document.getElementById('imp_s_dpw_20').value = 270;
+        document.getElementById('imp_s_dpw_40').value = 390;
+    } else if (val === 'puerto') {
+        document.getElementById('imp_s_apm_20').value = 350.63;
+        document.getElementById('imp_s_apm_40').value = 516.59;
+        document.getElementById('imp_s_dpw_20').value = 289.64;
+        document.getElementById('imp_s_dpw_40').value = 399.96;
+    }
+    calcularTotales();
+}
+
+function cambiarModoAduanaImp() {
+    const modo = document.getElementById('selModoAduanaImp').value;
+    const boxCamposCIF = document.getElementById('boxCamposCIF');
+    boxCamposCIF.style.display = modo === 'PORCENTAJE' ? 'flex' : 'none';
+    recalcularAduanaImp();
+}
+
+function recalcularAduanaImp() {
+    const modo = document.getElementById('selModoAduanaImp').value;
+    if (modo === 'MINIMA') {
+        const valMin = 120;
+        document.getElementById('imp_a_apm_20').value = valMin;
+        document.getElementById('imp_a_apm_40').value = valMin;
+        document.getElementById('imp_a_dpw_20').value = valMin;
+        document.getElementById('imp_a_dpw_40').value = valMin;
+    } else {
+        const fob = parseFloat(document.getElementById('inputFOB').value) || 0;
+        const fleteCIF = parseFloat(document.getElementById('inputFleteCIF').value) || 0;
+        const seguro = parseFloat(document.getElementById('inputSeguro').value) || 0;
+        const pct = parseFloat(document.getElementById('inputPorcentajeCIF').value) || 0;
+
+        const valorCIF = fob + fleteCIF + seguro;
+        document.getElementById('lblCalculoCIF').innerText = valorCIF.toFixed(2);
+
+        let calculo = (valorCIF * pct) / 100;
+        if (calculo < 120) calculo = 120;
+
+        document.getElementById('imp_a_apm_20').value = calculo.toFixed(2);
+        document.getElementById('imp_a_apm_40').value = calculo.toFixed(2);
+        document.getElementById('imp_a_dpw_20').value = calculo.toFixed(2);
+        document.getElementById('imp_a_dpw_40').value = calculo.toFixed(2);
+    }
+    calcularTotales();
+}
+
+function cambiarTransporteImp() {
+    const opt = document.getElementById('selTransporteImp').value;
+    let vUnica = 380;
+
+    if (zonasLima.includes(opt)) {
+        vUnica = 420;
+    } else if (zonasPeriferica.includes(opt)) {
+        vUnica = 500;
+    }
+
+    document.getElementById('imp_t_apm_20').value = vUnica;
+    document.getElementById('imp_t_apm_40').value = vUnica;
+    document.getElementById('imp_t_dpw_20').value = vUnica;
+    document.getElementById('imp_t_dpw_40').value = vUnica;
+    calcularTotales();
+}
+
+function cambiarTransporteExp() {
+    const opt = document.getElementById('selTransporteExp').value;
+    let vUnica = 700;
+
+    if (zonasCallao.includes(opt)) {
+        vUnica = 380;
+    } else if (zonasLima.includes(opt)) {
+        vUnica = 420;
+    } else if (zonasPeriferica.includes(opt)) {
+        vUnica = 500;
+    }
+
+    document.getElementById('exp_t_apm_20').value = vUnica;
+    document.getElementById('exp_t_apm_40').value = vUnica;
+    document.getElementById('exp_t_dpw_20').value = vUnica;
+    document.getElementById('exp_t_dpw_40').value = vUnica;
+    calcularTotales();
+}
+
+function renderNavieras() {
+    const container = document.getElementById('navierasContainer');
+    container.innerHTML = "";
+    const list = modoActual === 'IMP' ? navierasImportacion : navierasExportacion;
+
+    Object.keys(list).forEach(nav => {
+        const label = document.createElement('label');
+        label.className = 'naviera-item';
+        label.innerHTML = `<input type="checkbox" class="chk-naviera" value="${nav}" checked onchange="calcularTotales()"> ${nav}`;
+        container.appendChild(label);
+    });
+}
+
+function cambiarModo(modo) {
+    modoActual = modo;
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+
+    if (modo === 'IMP') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('modoIMP').classList.add('active');
+        document.getElementById('exportTitulo').innerText = "TOLEPU PERÚ - TARIFARIO DE IMPORTACIÓN CALLAO";
+    } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('modoEXP').classList.add('active');
+        document.getElementById('exportTitulo').innerText = "TOLEPU PERÚ - TARIFARIO DE EXPORTACIÓN CALLAO";
+    }
+
+    renderNavieras();
+    calcularTotales();
+}
+
+function inicializarFecha() {
+    const hoy = new Date();
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    document.getElementById('displayFecha').innerText = `${dia}/${mes}/${hoy.getFullYear()}`;
+}
+
+function actualizarCliente() {
+    const val = document.getElementById('inputCliente').value.trim();
+    document.getElementById('displayCliente').innerText = val !== "" ? val.toUpperCase() : "GENERAL";
+}
+
+function toggleTodasNavieras() {
+    const checkboxes = document.querySelectorAll('.chk-naviera');
+    const marcadas = document.querySelectorAll('.chk-naviera:checked');
+    const nuevoEstado = marcadas.length !== checkboxes.length;
+    checkboxes.forEach(chk => chk.checked = nuevoEstado);
+    calcularTotales();
+}
+
+function toggleTodosCostosBase(modo) {
+    const selector = modo === 'IMP' ? '.chk-costo-imp' : '.chk-costo-exp';
+    const masterSelector = modo === 'IMP' ? '.chk-row-master-imp' : '.chk-row-master-exp';
+    const checkboxes = document.querySelectorAll(selector);
+    const marcadas = document.querySelectorAll(`${selector}:checked`);
+    const nuevoEstado = marcadas.length !== checkboxes.length;
+
+    checkboxes.forEach(chk => chk.checked = nuevoEstado);
+    document.querySelectorAll(masterSelector).forEach(chk => chk.checked = nuevoEstado);
+    calcularTotales();
+}
+
+function toggleFilaCosto(modo, masterChk, rowClass) {
+    const estado = masterChk.checked;
+    document.querySelectorAll('.' + rowClass).forEach(chk => chk.checked = estado);
+    calcularTotales();
+}
+
+function sincronizarFila(rowClass, modo) {
+    const filaChks = document.querySelectorAll('.' + rowClass);
+    if (filaChks.length === 0) return;
+    const marcados = document.querySelectorAll('.' + rowClass + ':checked');
+    const master = filaChks[0].closest('tr').querySelector('input[type="checkbox"]');
+    if (master) master.checked = (filaChks.length === marcados.length);
+}
+
+function calcularColumnaBase(colKey) {
+    const modoClass = modoActual === 'IMP' ? '.chk-costo-imp' : '.chk-costo-exp';
+    let total = 0;
+    document.querySelectorAll(`${modoClass}[data-col="${colKey}"]`).forEach(chk => {
+        if (chk.checked) {
+            const input = chk.nextElementSibling;
+            if (input && input.type === "number") total += parseFloat(input.value) || 0;
+        }
+    });
+    return total;
+}
+
+function calcularAdicionalesFargoline() {
+    const selector = modoActual === 'IMP' ? '.chk-fargoline-imp' : '.chk-fargoline-exp';
+    let totalFargoline = 0;
+    document.querySelectorAll(selector).forEach(chk => {
+        if (chk.checked) {
+            const input = chk.closest('.fargoline-item').querySelector('input[type="number"]');
+            if (input) totalFargoline += parseFloat(input.value) || 0;
+        }
+    });
+    return totalFargoline;
+}
+
+function actualizarGlosa() {
+    const modoClass = modoActual === 'IMP' ? '.chk-costo-imp:checked' : '.chk-costo-exp:checked';
+    let servicios = modoActual === 'IMP' ? ["Visto Bueno", "Gate-In"] : ["Visto Bueno (1er CNT)", "Gate Out (20'/40')"];
+
+    const conceptos = new Set();
+    document.querySelectorAll(modoClass).forEach(chk => {
+        const glosa = chk.getAttribute('data-glosa');
+        const glosaCustomId = chk.getAttribute('data-glosa-custom');
+        if (glosa) {
+            conceptos.add(glosa);
+        } else if (glosaCustomId) {
+            const inputName = document.getElementById(glosaCustomId);
+            if (inputName && inputName.value.trim() !== "") {
+                conceptos.add(inputName.value.trim());
+            }
+        }
+    });
+
+    const selectorFargoline = modoActual === 'IMP' ? '.chk-fargoline-imp:checked' : '.chk-fargoline-exp:checked';
+    document.querySelectorAll(selectorFargoline).forEach(chk => {
+        const glosa = chk.getAttribute('data-glosa');
+        if (glosa) conceptos.add(`Adic. Fargoline (${glosa})`);
+    });
+
+    conceptos.forEach(c => servicios.push(c));
+
+    document.getElementById('glosaDinamica').innerText = 
+        `La tarifa por contenedor contempla el servicio integral neto: ${servicios.join(', ')}.`;
+}
+
+function calcularTotales() {
+    const baseAPM20 = calcularColumnaBase("apm_20");
+    const baseAPM40 = calcularColumnaBase("apm_40");
+    const baseDPW20 = calcularColumnaBase("dpw_20");
+    const baseDPW40 = calcularColumnaBase("dpw_40");
+
+    const adicionalFargoline = calcularAdicionalesFargoline();
+
+    const tbody = document.getElementById("bodyTarifario");
+    tbody.innerHTML = "";
+
+    const seleccionadas = document.querySelectorAll(".chk-naviera:checked");
+    const fuenteNavieras = modoActual === 'IMP' ? navierasImportacion : navierasExportacion;
+
+    if (seleccionadas.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="color: #999; padding: 15px;">Seleccione al menos una línea naviera.</td></tr>`;
+        actualizarGlosa();
+        return;
+    }
+
+    seleccionadas.forEach(chk => {
+        const nombre = chk.value;
+        const navData = fuenteNavieras[nombre] || { vb: 0, gate_20: 0, gate_40: 0 };
+
+        const totAPM20 = baseAPM20 + navData.vb + navData.gate_20 + adicionalFargoline;
+        const totAPM40 = baseAPM40 + navData.vb + navData.gate_40 + adicionalFargoline;
+        const totDPW20 = baseDPW20 + navData.vb + navData.gate_20 + adicionalFargoline;
+        const totDPW40 = baseDPW40 + navData.vb + navData.gate_40 + adicionalFargoline;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td><strong>${nombre}</strong></td>
+            <td class="monto-celda">$${totAPM20.toFixed(2)}</td>
+            <td class="monto-celda">$${totAPM40.toFixed(2)}</td>
+            <td class="monto-celda">$${totDPW20.toFixed(2)}</td>
+            <td class="monto-celda">$${totDPW40.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    actualizarGlosa();
+}
+
+function generarNombreArchivo() {
+    const tipo = modoActual === 'IMP' ? 'IMP' : 'EXP';
+    const clienteInput = document.getElementById('inputCliente').value.trim();
+    const cliente = clienteInput !== "" ? clienteInput.replace(/[^a-zA-Z0-9]/g, '_') : 'GENERAL';
+    
+    const hoy = new Date();
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const anio = hoy.getFullYear();
+    const fecha = `${dia}/${mes}/${anio}`;
+
+    return `Tarifario SLI ${tipo} ${cliente} - ${fecha}.png`.replace(/\//g, '-');
+}
+
+function exportarImagen() {
+    const exportNode = document.getElementById('exportArea');
+    html2canvas(exportNode, { scale: 2, useCORS: true }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = generarNombreArchivo();
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+}
+
+function enviarWhatsAppConImagen() {
+    const exportNode = document.getElementById('exportArea');
+    html2canvas(exportNode, { scale: 2, useCORS: true }).then(canvas => {
+        canvas.toBlob(blob => {
+            const nombreArchivo = generarNombreArchivo();
+            const file = new File([blob], nombreArchivo, { type: 'image/png' });
+            let mensaje = modoActual === 'IMP' 
+                ? "Estimado cliente, compartimos nuestro tarifario integral de Importación Marítima - Tolepu Perú. Quedamos a su disposición para cualquier consulta."
+                : "Estimado cliente, compartimos nuestro tarifario integral de Exportación Marítima - Tolepu Perú. Quedamos a su disposición para cualquier consulta.";
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                    title: 'Tarifario Tolepu Perú',
+                    text: mensaje,
+                    files: [file]
+                }).catch(() => abrirWhatsAppWebFallback(mensaje));
+            } else {
+                abrirWhatsAppWebFallback(mensaje);
+            }
+        }, 'image/png');
+    });
+}
+
+inicializarFecha();
+renderNavieras();
+calcularTotales();
+</script>
+
+</body>
+</html>
